@@ -8,7 +8,7 @@ class Connection:
         self.socket_timeout = socket_timeout
         self.redis_endpoint = redis_endpoint
 
-    def create(self):
+    def create(self) -> redis.client.Redis:
         return redis.Redis(
             host=self.redis_endpoint,
             port=self.port,

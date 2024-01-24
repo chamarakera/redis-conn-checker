@@ -1,14 +1,13 @@
 import sys
-from connection import Connection
-from validate import Validate
+
 from actions import Actions
+from connection import Connection
 from loguru import logger
+from validate import Validate
 
 
 def usage():
-    logger.info(
-        "Usage: poetry run python redis-conn-checker/src <primary_endpoint> <primary_node>"
-    )
+    logger.info("Usage: poetry run python redis-conn-checker/src <primary_endpoint> <primary_node_name>")
 
 
 def main():
@@ -24,7 +23,7 @@ def main():
     if redis_cluster_id in ["delete", "del"]:
         Actions(redis_connection, redis_endpoint).delete_from_db()
     else:
-        Validate(redis_connection, redis_cluster_id, redis_endpoint).read_write()
+        Validate(redis_connection, redis_cluster_id, redis_endpoint).read_write_lookup()
 
 
 if __name__ == "__main__":

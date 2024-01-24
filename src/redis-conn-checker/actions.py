@@ -1,38 +1,41 @@
-import sys
 import socket
+from socket import gaierror
+
+import redis
 from loguru import logger
 
 
 class Actions:
-    def __init__(self, redis_connection, redis_endpoint) -> None:
+    def __init__(self, redis_connection: redis.client.Redis, redis_endpoint: str) -> None:
         self.redis_connection = redis_connection
         self.redis_endpoint = redis_endpoint
-        self.dummy_key = "foo"
-        self.dummy_val = "bar"
+        self.dummy_key, self.dummy_val = "foo", "bar"
 
-    def write_to_db(self):
+    def write(self) -> bool:
         """write dummy entry to redis endpoint DB"""
         try:
-            result = self.redis_connection.set(self.dummy_key, self.dummy_val)
-        except:
-            result = sys.exc_info()[0]
-        return result
+            return self.redis_connection.set(self.dummy_key, self.dummy_val)
+        except redis.exceptions.RedisError:
+            return False
 
-    def read_from_db(self):
+    def read(self) -> str:
         """read dummy entry from redis endpoint DB"""
         try:
-            result = self.redis_connection.get(self.dummy_key)
-        except:
-            result = sys.exc_info()[0]
-        return result
+            return self.redis_connection.get(self.dummy_key)
+        except redis.exceptions.RedisError as e:
+            return e
 
-    def delete_from_db(self):
+    def delete(self) -> None:
         """deletes dummy entry from redis DB"""
         try:
             self.redis_connection.delete(self.dummy_key)
-        except:
-            logger.error(sys.exc_info()[0])
+            logger.info(f"Dummy entry {self.dummy_val} deleted")
+        except redis.exceptions.RedisError as e:
+            logger.error(e)
 
-    def endpoint_lookup(self):
+    def lookup(self) -> str:
         """runs a DNS lookup to find the IP address of the redis endpoint"""
-        return socket.getaddrinfo(self.redis_endpoint, 0, 0, 0, 0)[0][-1][0]
+        try:
+            return socket.getaddrinfo(self.redis_endpoint, 0, 0, 0, 0)[0][-1][0]
+        except gaierror as e:
+            return e
