@@ -8,5 +8,5 @@ This tool can be used to check Elasticache Redis connectivity during following s
 
 ```sh
 $ poetry install
-$ poetry run python src/redis-conn-checker
+$ poetry run python src/redis-conn-checker <primary_redis_endpoint> <primary_node_name>
 ```
